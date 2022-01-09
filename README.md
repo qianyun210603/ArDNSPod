@@ -27,6 +27,11 @@ arToken="12345,7676f344eaeaea9074c123451234512d"
 # 每行一个域名
 arDdnsCheck "test.org" "subdomain"
 ```
+如需使用Local-WAN模式，请安装miniupnpc
+```
+# debian/ubuntu setup: 
+# sudo apt-get install miniupnpc
+```
 
 # 最近更新
 
@@ -65,6 +70,9 @@ arDdnsCheck "test.org" "subdomain"
 
 2020-01-09
 - API返回格式又变了，更改正则表达匹配。
+
+2021-06-06
+- 支持Local-WAN模式：Local-WAN是指路由器作为一个大局域网的子网，某些场景下需要获取当前路由器的WAN IP，这些WAN IP一般仍然是一个子网IP
 
 # Credit
 

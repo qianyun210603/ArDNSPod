@@ -22,7 +22,7 @@
 #################################################
 
 #Please select IP type
-IPtype=1  #1.WAN 2.LAN 3.IPv6
+IPtype=1  #1.WAN 2.LAN 3.IPv6 4.Local-WAN
 #---------------------
 if [ $IPtype = '3' ]; then
     record_type='AAAA'
@@ -63,6 +63,10 @@ case $(uname) in
 		# 因为一般ipv6没有nat ipv6的获得可以本机获得
 		#ifconfig $(nvram get wan0_ifname_t) | awk '/Global/{print $3}' | awk -F/ '{print $1}' 
 		ip addr show dev eth0 | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' | awk 'NR==1' #如果没有nvram，使用这条，注意将eth0改为本机上的网口设备 （通过 ifconfig 查看网络接口）
+		;;
+		'4')
+		# Local-WAN是指路由器作为一个大局域网的子网，某些场景下需要获取当前路由器的WAN IP，这些WAN IP一般仍然是一个子网IP
+		upnpc -s | grep ^ExternalIPAddress | cut -c21-
 		;;
  	esac
  
