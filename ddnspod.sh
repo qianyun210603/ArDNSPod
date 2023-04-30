@@ -164,6 +164,8 @@ arPass=""
 
 #. $DIR/dns.conf
 
+#echo $arToken
+
 # Get Domain IP
 # arg: domain
 arDdnsInfo() {
@@ -184,16 +186,25 @@ arDdnsInfo() {
     recordIP=$(echo $recordIP | sed 's/.*,"value":"\([0-9a-z\.:]*\)".*/\1/')
     
     # Output IP
-    case "$recordIP" in 
-      [1-9a-z]*)
-        echo $recordIP
-        return 0
-        ;;
-      *)
+    if [[ $recordIP =~ [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} ]]; then
+	echo $recordIP
+	return 0
+    else
         echo "Get Record Info Failed!"
         return 1
-        ;;
-    esac
+    fi
+
+
+    #case "$recordIP" in 
+    #  [0-9]\{1,3\}[.][0-9]\{1,3\}[.][0-9]\{1,3\}[.][0-9]\{1,3\})
+    #    echo $recordIP
+    #    return 0
+    #    ;;
+    #  *)
+    #    echo "Get Record Info Failed!"
+    #    return 1
+    #    ;;
+    #esac
 }
 
 # Get data
@@ -252,8 +263,9 @@ arDdnsCheck() {
     local postRS
     local lastIP
     local hostIP=$(arIpAddress)
-    echo "Updating Domain: ${2}.${1}"
-    echo "hostIP: ${hostIP}"
+    echo "Current time: $(date "+%F %T")" | tee -a $LOGFILE
+    echo "Updating Domain: ${2}.${1}" | tee -a $LOGFILE
+    echo "hostIP: ${hostIP}" | tee -a $LOGFILE
     lastIP=$(arDdnsInfo $1 $2)
     if [ $? -eq 0 ]; then
         echo "lastIP: ${lastIP}"
@@ -261,14 +273,14 @@ arDdnsCheck() {
             postRS=$(arDdnsUpdate $1 $2)
              
             if [ $? -eq 0 ]; then
-                echo "update to ${postRS} successed."
+                echo "update to ${postRS} successed." | tee -a $LOGFILE
                 return 0
             else
                 echo ${postRS}
                 return 1
             fi
         fi
-        echo "Last IP is the same as current, no action."
+        echo "Last IP is the same as current, no action." | tee -a $LOGFILE
         return 0
     fi
     echo ${lastIP}
@@ -282,4 +294,11 @@ arDdnsCheck() {
 #    arDdnsCheck "${domains[index]}" "${subdomains[index]}"
 #done
 
-. $DIR/dns.conf
+if test -f "$DIR/dns.conf"; then
+    . $DIR/dns.conf
+elif test -f "$(dirname "$0")/dns.conf"; then
+    . $(dirname "$0")/dns.conf
+else
+    echo "No dns.conf found!"
+    exit
+fi
